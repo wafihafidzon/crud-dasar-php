@@ -1,39 +1,5 @@
 <?php
-
-$localhost  = "localhost";
-$username   = "root";
-$password   = "";
-$db         = "crud";
-
-
-@$kirim = $_POST["kirim"];
-
-$koneksi = mysqli_connect($localhost, $username, $password, $db);
-
-if (!$koneksi) {
-    die("Database tidak terhubung");
-}
-// pembuatan create
-if (isset($kirim)) {
-        $nim        = $_POST['nim'];
-        $nama       = $_POST['nama'];
-        $domisili   = $_POST['domisili'];
-        
-        if ($nim && $nama && $domisili) {
-        
-        $sqli = "INSERT INTO mahasiswa (id, nim, nama, domisili) VALUES (NULL, '$nim', '$nama', '$domisili')";
-        $q1 = mysqli_query($koneksi, $sqli);
-
-        if ($q1) {
-            $sukses = "Berhasil memasukkan data";
-        } else {
-            $gagal = "Gagal memasukkan data";
-        }
-    }else {
-        $gagal = "Data yang anda masukkan tidak lengkap";
-    }
-}
-
+include 'text.php';
 
 ?>
 <!DOCTYPE html>
@@ -49,6 +15,10 @@ if (isset($kirim)) {
         .mx-auto {
             width: 800px;
         }
+
+        /* th, td{
+            text-align: center;
+        } */
     </style>
 </head>
 
@@ -64,7 +34,8 @@ if (isset($kirim)) {
                         <?= @$gagal ?>
                     </div>
                 <?php
-                } if (@$sukses) { ?>
+                }
+                if (@$sukses) { ?>
                     <div class="alert alert-success" role="alert">
                         <?= @$sukses ?>
                     </div>
@@ -72,44 +43,66 @@ if (isset($kirim)) {
 
                 <form action="" method="POST">
                     <div class="mb-3 row">
-                        <label for="inputPassword" class="col-sm-2 col-form-label">NIM</label>
+                        <label for="inputPassword" class="col-sm-2 col-form-label">Menu</label>
                         <div class="col-sm-10">
-                            <input type="number" class="form-control" name="nim" id="nim" value="<?= @$nim ?>">
+                            <input type="text" class="form-control" name="menu" id="menu" value="<?= @$menu ?>">
                         </div>
                     </div>
                     <div class="mb-3 row">
-                        <label for="inputPassword" class="col-sm-2 col-form-label">Nama</label>
+                        <label for="inputPassword" class="col-sm-2 col-form-label">Kategori</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" name="nama" id="nama" value="<?= @$nama ?>">
+                            <select class="form-select" aria-label="Default select example" name="kategori">
+                                <option selected>- Kategori -</option>
+                                <option value="Makanan" <?php if(@$kategori == 'Makanan') echo "Selected" ?>>Makanan</option>
+                                <option value="Minuman" <?php if(@$kategori == 'Minuman') echo "Selected" ?>>Minuman</option>
+                            </select>
                         </div>
                     </div>
                     <div class="mb-3 row">
-                        <label for="inputPassword" class="col-sm-2 col-form-label">Domisili</label>
+                        <label for="inputPassword" class="col-sm-2 col-form-label">Harga</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" name="domisili" id="domisili" value="<?= @$domisili ?>">
+                            <input type="text" class="form-control" name="harga" id="harga" value="<?= @$harga ?>">
                         </div>
                     </div>
-                    <input type="submit" class="btn btn-success" value="kirim" name="kirim">
+                    <input type="submit" class="btn btn-success" value="Kirim" name="kirim">
+                    <input type="submit" class="btn btn-danger" value="Edit" onclick="return confirm('Yakin Akan Mengedit Data')" name="edit">
                 </form>
             </div>
         </div>
         <!-- untuk menampilkan data -->
+
+
+
         <div class="card">
-            <div class="card-header">Data Mahasiswa</div>
+            <div class="card-header">Menu Makanan</div>
             <div class="card-body">
                 <table class="table">
-                    <thead class="table-primary">
+                    <thead class="table-primary text-center">
                         <tr>
-                            <th scope="col">NIM</th>
-                            <th scope="col">Nama</th>
-                            <th scope="col">Domisili</th>
+                            <th scope="col">NO</th>
+                            <th scope="col">Menu</th>
+                            <th scope="col">Kategori</th>
+                            <th scope="col">Harga</th>
+                            <th scope="col">Fungsi</th>
                         </tr>
                     </thead>
-                    <tr>
-                        <td scope="col"><?= @$nim ?></td>
-                        <td scope="col"><?= @$nama ?></td>
-                        <td scope="col"><?= @$domisili ?></td>
-                    </tr>
+                    <?php
+                    $qread = "SELECT * FROM menu";
+                    $q1 = mysqli_query($koneksi, $qread);
+                    $nomor = 1;
+                    while ($data = mysqli_fetch_array($q1)) {
+                    ?>
+                        <tr class="text-center">
+                            <td scope="col"><?= @$nomor++ ?></td>
+                            <td scope="col"><?= @$data['menu'] ?></td>
+                            <td scope="col"><?= @$data['kategori'] ?></td>
+                            <td scope="col"><?= @$data['harga'] ?></td>
+                            <td scope="col">
+                                <a href="index.php?op=edit&id=<?php echo $data['id'] ?>"><button type="submit" class="btn btn-warning" value="Edit" name="edit">edit</button></a>
+                                <a href="index.php?op=delete&id=<?php echo $data['id'] ?>"><button type="submit" onclick="return confirm('Yakin Akan Menghapus Data')" class="btn btn-danger" value="Delete" name="delete">delete</button></a>
+                            </td>
+                        </tr>
+                    <?php } ?>
                 </table>
             </div>
         </div>
@@ -118,3 +111,4 @@ if (isset($kirim)) {
 </body>
 
 </html>
+<!-- onclick="return confirm('Yakin Akan Menghapus Data')" -->
